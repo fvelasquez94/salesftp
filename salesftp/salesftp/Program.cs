@@ -1,4 +1,6 @@
 ﻿using LINQtoCSV;
+using Postal;
+using Renci.SshNet;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,6 +9,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace salesftp
 
@@ -15,6 +18,7 @@ namespace salesftp
     class Program
     {
         private DLI_PROEntities sigmadb = new DLI_PROEntities();
+
         static void Main(string[] args)
         {
             Console.Clear();
@@ -46,7 +50,7 @@ namespace salesftp
                 if (conecto == 1)
                 {
                     //Conexión establecida
-                    Console.Write("\n Connecting success. \n");
+                    Console.Write("\n Successful connection. \n");
 
                     //Realizamos solicitud de datos
                     Console.Write("\n Getting data from server... \n");
@@ -72,36 +76,52 @@ namespace salesftp
                             Console.Write("\n Creating .csv file... \n");
                             CsvContext cc = new CsvContext();
                             //Salida
-                            cc.Write(lista_datos, "Sigmadata_" + DateTime.Now.ToString("yyyyMMdd") + ".csv", outputFileDescription);
+
+                            cc.Write(lista_datos, "Sigma_Weekly_Sales_" + DateTime.Now.AddDays(-6).ToString("yyyyMMdd") + "_" + DateTime.Now.ToString("yyyyMMdd") + ".csv", outputFileDescription);
+  
                             Console.Write("\n File created successfully... \n");
 
-                            Console.Write("\n Uploading file... \n");
 
-                            // Obtenemos el objeto con el cual nos comunicaremos al servidor
-                            FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://www.contoso.com/test.htm");
-                            request.Method = WebRequestMethods.Ftp.UploadFile;
+                            //Ocupamos un metodo de subida para SFTP, no FTP... Usando el framework SSH.NET
+                            FileUploadSFTP("12.195.70.242", 5001, "bar-s", "Lim3nA_B@r-$", "Sigma_Weekly_Sales_" + DateTime.Now.AddDays(-6).ToString("yyyyMMdd") + "_" + DateTime.Now.ToString("yyyyMMdd") + ".csv");
 
-                            // Credenciales
-                            request.Credentials = new NetworkCredential("anonymous", "janeDoe@contoso.com");
 
-                            // Copiamos el archivo a un objeto stream
-                            StreamReader sourceStream = new StreamReader("Sigmadata_" + DateTime.Now.ToString("yyyyMMdd") + ".csv");
-                            byte[] fileContents = Encoding.UTF8.GetBytes(sourceStream.ReadToEnd());
-                            sourceStream.Close();
-                            request.ContentLength = fileContents.Length;
+                            Console.Write("\n Sending notifications... \n");
 
-                            Stream requestStream = request.GetRequestStream();
-                            requestStream.Write(fileContents, 0, fileContents.Length);
-                            requestStream.Close();
+                            try{
 
-                            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                                //Enviamos el correo de notificación
+                                var viewsPath = Path.GetFullPath(@"Views\Emails");
 
-                            Console.WriteLine("Upload File Complete, status {0}", response.StatusDescription);
-                            response.Close();
+                                var engines = new ViewEngineCollection();
+                                engines.Add(new FileSystemRazorViewEngine(viewsPath));
+
+                                var service = new EmailService(engines);
+
+                                dynamic email = new Email("ftp_notification");
+
+                                service.Send(email);
+                                Console.Write("\n Email sent successfully. \n");
+
+                            } catch (Exception e) {
+                                Console.Write("\n Email can't send. " + e.Message + " \n");
+                            }
 
                         }
                         catch (Exception ex) {
                             Console.Write("\n An error was handle:  " + ex.Message);
+
+                            // Enviamos el correo de notificación
+                            var viewsPath = Path.GetFullPath(@"Views\Emails");
+
+                            var engines = new ViewEngineCollection();
+                            engines.Add(new FileSystemRazorViewEngine(viewsPath));
+
+                            var service = new EmailService(engines);
+
+                            dynamic email = new Email("ftp_notification_error");
+
+                            service.Send(email);
                         }
 
                     }
@@ -122,8 +142,49 @@ namespace salesftp
                 Console.Write("\n An error was handle:  " + ex.Message);
             }
             Console.WriteLine("\n\n Closing application");
-            Thread.Sleep(6000);
+            Environment.Exit(0);
+        }
+
+        
+        public static void FileUploadSFTP(string host, int port, string username, string password, string file)
+        {
+
+            var uploadFile = @file;
+
+            using (var client = new SftpClient(host, port, username, password))
+            {
+               
+                client.Connect();
+
+                if (client.IsConnected)
+                {
+                    Console.Write("\n Connected to the ftp client. \n");
+                    client.ChangeDirectory("/FillRate");
+
+                    using (var fileStream = new FileStream(uploadFile, FileMode.Open))
+                        {
+                            Console.WriteLine("\n Uploading {0} ({1:N0}) bytes. \n)", uploadFile, fileStream.Length);
+                            client.BufferSize = 4 * 1024; // bypass Payload error large files
+                            client.UploadFile(fileStream, Path.GetFileName(uploadFile));
+
+              
+                        }
+
+                        Console.Write("\n Upload File Complete. \n");
+
+
+                }
+                else
+                {
+                    Console.Write("\n Error, could not connect with ftp client. \n");
+                }
+                client.Disconnect();
+                client.Dispose();
+          
+            }
+
 
         }
+
     }
 }
