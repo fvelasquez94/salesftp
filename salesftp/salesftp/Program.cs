@@ -42,8 +42,8 @@ namespace salesftp
                     conecto = 1;
 
                 }
-                catch {
-
+                catch(Exception ex) {
+                    var mensaje = ex.Message;
                     conecto = 0;
                 }
                 

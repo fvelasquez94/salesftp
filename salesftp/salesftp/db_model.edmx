@@ -4,24 +4,24 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="DLI_PROModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
-        <!--Errores durante la generación:
-advertencia 6002: La tabla o vista 'DLI_PRO.dbo.SigmaFR' no tiene definida ninguna clave principal. Se ha inferido la clave y la definición se creado como una vista o tabla de solo lectura.-->
+    <Schema Namespace="DLI_PROModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'DLI_PRO.dbo.SigmaFR' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="SigmaFR">
           <Key>
-            <PropertyRef Name="HBSucst" />
             <PropertyRef Name="Ornum" />
           </Key>
-          <Property Name="HBSucst" Type="int" Nullable="false" />
+          <Property Name="HBSucst" Type="nvarchar" MaxLength="15" />
           <Property Name="SigmaCust" Type="ntext" />
-          <Property Name="Company" Type="nvarchar" MaxLength="100" />
+          <Property Name="Company" Type="nvarchar" MaxLength="4000" />
           <Property Name="Invno" Type="int" />
           <Property Name="Invdte" Type="datetime" />
           <Property Name="Ornum" Type="int" Nullable="false" />
           <Property Name="HBitem" Type="nvarchar" MaxLength="20" />
           <Property Name="SigmaItem" Type="nvarchar" MaxLength="17" />
-          <Property Name="Descrip" Type="nvarchar" MaxLength="100" />
-          <Property Name="Ponum" Type="nvarchar" MaxLength="100" />
+          <Property Name="Descrip" Type="nvarchar" MaxLength="4000" />
+          <Property Name="Ordnum" Type="nvarchar" MaxLength="100" />
+          <Property Name="Ponum" Type="nvarchar" MaxLength="104" />
           <Property Name="Weight" Type="numeric" Precision="19" Scale="6" />
           <Property Name="Qtyord" Type="numeric" Precision="19" Scale="6" />
           <Property Name="Qtyshp" Type="numeric" Precision="19" Scale="6" />
@@ -45,6 +45,7 @@ advertencia 6002: La tabla o vista 'DLI_PRO.dbo.SigmaFR' no tiene definida ningu
     [SigmaFR].[HBitem] AS [HBitem], 
     [SigmaFR].[SigmaItem] AS [SigmaItem], 
     [SigmaFR].[Descrip] AS [Descrip], 
+    [SigmaFR].[Ordnum] AS [Ordnum], 
     [SigmaFR].[Ponum] AS [Ponum], 
     [SigmaFR].[Weight] AS [Weight], 
     [SigmaFR].[Qtyord] AS [Qtyord], 
@@ -59,26 +60,28 @@ advertencia 6002: La tabla o vista 'DLI_PRO.dbo.SigmaFR' no tiene definida ningu
     FROM [dbo].[SigmaFR] AS [SigmaFR]</DefiningQuery>
           </EntitySet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="DLI_PROModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="DLI_PROEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="SigmaFR" EntityType="DLI_PROModel.SigmaFR" />
+        </EntityContainer>
         <EntityType Name="SigmaFR">
           <Key>
-            <PropertyRef Name="HBSucst" />
             <PropertyRef Name="Ornum" />
           </Key>
-          <Property Name="HBSucst" Type="Int32" Nullable="false" />
+          <Property Name="HBSucst" Type="String" MaxLength="15" FixedLength="false" Unicode="true" />
           <Property Name="SigmaCust" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Company" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Company" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
           <Property Name="Invno" Type="Int32" />
           <Property Name="Invdte" Type="DateTime" Precision="3" />
           <Property Name="Ornum" Type="Int32" Nullable="false" />
           <Property Name="HBitem" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
           <Property Name="SigmaItem" Type="String" MaxLength="17" FixedLength="false" Unicode="true" />
-          <Property Name="Descrip" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="Ponum" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Descrip" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+          <Property Name="Ordnum" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="Ponum" Type="String" MaxLength="104" FixedLength="false" Unicode="true" />
           <Property Name="Weight" Type="Decimal" Precision="19" Scale="6" />
           <Property Name="Qtyord" Type="Decimal" Precision="19" Scale="6" />
           <Property Name="Qtyshp" Type="Decimal" Precision="19" Scale="6" />
@@ -90,9 +93,6 @@ advertencia 6002: La tabla o vista 'DLI_PRO.dbo.SigmaFR' no tiene definida ningu
           <Property Name="Cost" Type="Decimal" Precision="19" Scale="6" />
           <Property Name="ExtCost" Type="Decimal" Precision="38" Scale="11" />
         </EntityType>
-        <EntityContainer Name="DLI_PROEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="SigmaFR" EntityType="Self.SigmaFR" />
-        </EntityContainer>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -102,26 +102,27 @@ advertencia 6002: La tabla o vista 'DLI_PRO.dbo.SigmaFR' no tiene definida ningu
           <EntitySetMapping Name="SigmaFR">
             <EntityTypeMapping TypeName="DLI_PROModel.SigmaFR">
               <MappingFragment StoreEntitySet="SigmaFR">
-                <ScalarProperty Name="HBSucst" ColumnName="HBSucst" />
-                <ScalarProperty Name="SigmaCust" ColumnName="SigmaCust" />
-                <ScalarProperty Name="Company" ColumnName="Company" />
-                <ScalarProperty Name="Invno" ColumnName="Invno" />
-                <ScalarProperty Name="Invdte" ColumnName="Invdte" />
-                <ScalarProperty Name="Ornum" ColumnName="Ornum" />
-                <ScalarProperty Name="HBitem" ColumnName="HBitem" />
-                <ScalarProperty Name="SigmaItem" ColumnName="SigmaItem" />
-                <ScalarProperty Name="Descrip" ColumnName="Descrip" />
-                <ScalarProperty Name="Ponum" ColumnName="Ponum" />
-                <ScalarProperty Name="Weight" ColumnName="Weight" />
-                <ScalarProperty Name="Qtyord" ColumnName="Qtyord" />
-                <ScalarProperty Name="Qtyshp" ColumnName="Qtyshp" />
-                <ScalarProperty Name="Price" ColumnName="Price" />
-                <ScalarProperty Name="Fdisamt" ColumnName="Fdisamt" />
-                <ScalarProperty Name="Totdisc" ColumnName="Totdisc" />
-                <ScalarProperty Name="Extprice" ColumnName="Extprice" />
-                <ScalarProperty Name="Extwt" ColumnName="Extwt" />
-                <ScalarProperty Name="Cost" ColumnName="Cost" />
                 <ScalarProperty Name="ExtCost" ColumnName="ExtCost" />
+                <ScalarProperty Name="Cost" ColumnName="Cost" />
+                <ScalarProperty Name="Extwt" ColumnName="Extwt" />
+                <ScalarProperty Name="Extprice" ColumnName="Extprice" />
+                <ScalarProperty Name="Totdisc" ColumnName="Totdisc" />
+                <ScalarProperty Name="Fdisamt" ColumnName="Fdisamt" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="Qtyshp" ColumnName="Qtyshp" />
+                <ScalarProperty Name="Qtyord" ColumnName="Qtyord" />
+                <ScalarProperty Name="Weight" ColumnName="Weight" />
+                <ScalarProperty Name="Ponum" ColumnName="Ponum" />
+                <ScalarProperty Name="Ordnum" ColumnName="Ordnum" />
+                <ScalarProperty Name="Descrip" ColumnName="Descrip" />
+                <ScalarProperty Name="SigmaItem" ColumnName="SigmaItem" />
+                <ScalarProperty Name="HBitem" ColumnName="HBitem" />
+                <ScalarProperty Name="Ornum" ColumnName="Ornum" />
+                <ScalarProperty Name="Invdte" ColumnName="Invdte" />
+                <ScalarProperty Name="Invno" ColumnName="Invno" />
+                <ScalarProperty Name="Company" ColumnName="Company" />
+                <ScalarProperty Name="SigmaCust" ColumnName="SigmaCust" />
+                <ScalarProperty Name="HBSucst" ColumnName="HBSucst" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
